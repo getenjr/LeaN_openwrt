@@ -52,41 +52,21 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
 
-    - name: Update Feeds
-      id: update
+    - name: Load custom feeds
       run: |
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
         cd openwrt
-        echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
-        echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
-        mkdir customfeeds
-        git clone --depth=1 https://github.com/xuanranran/openwrt-package customfeeds/lovepackages
-        git clone --depth=1 https://github.com/xuanranran/rely customfeeds/loverely
-        git clone --depth=1 https://github.com/coolsnowwolf/packages customfeeds/packages
-        git clone --depth=1 https://github.com/coolsnowwolf/luci customfeeds/luci -b openwrt-23.05
-        git clone --depth=1 https://github.com/coolsnowwolf/routing customfeeds/routing
-        git clone --depth=1 https://github.com/coolsnowwolf/telephony customfeeds/telephony
-        chmod +x ../scripts/*.sh
-        chmod +x ../scripts/lean23.05/*.sh
-        ../scripts/lean23.05/hook-package.sh
-        ../scripts/lean23.05/hook-base.sh
-        ../scripts/lean23.05/hook-feeds.sh
-        
-    - name: Install Feeds
-      run: |
-        cd $OPENWRTROOT
-        ./scripts/feeds install -a
+        $GITHUB_WORKSPACE/$DIY_P1_SH
 
-    - name: Load Custom Configuration
-      run: |
-        [ -e files ] && mv files $OPENWRTROOT/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
-        chmod +x scripts/*.sh
-        cd $OPENWRTROOT
-        ../$DIY_SH
-        ../scripts/preset-clash-core.sh amd64
-        ../scripts/preset-mihomo-core.sh amd64
-        ../scripts/preset-terminal-tools.sh
-        make defconfig
+    - name: Update feeds
+      run: cd openwrt && ./scripts/feeds update -a
+
+    - name: Install feeds
+      run: cd openwrt && ./scripts/feeds install -a -f -p helloworld && ./scripts/feeds install -a
+
+    - name: Feeds Check again
+      run: cd openwrt && ./scripts/feeds update -a && ./scripts/feeds install -a
         
     - name: Download Package
       id: package
