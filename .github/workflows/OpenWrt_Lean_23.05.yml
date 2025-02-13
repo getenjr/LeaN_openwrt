@@ -20,10 +20,11 @@ on:
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
-  CONFIG_FILE: configs/lean_23.05/lean_beggar.config
-  DIY_SH: scripts/lean23.05/lean.sh
+  CONFIG_FILE: .config
+  DIY_P1_SH: diy-part1.sh
+  DIY_P2_SH: diy-part2.sh
   UPLOAD_RELEASE: true
-  TZ: Asia/Shanghai
+  TZ: Jakarta/Shanghai
 
 jobs:
   Build:
@@ -58,6 +59,7 @@ jobs:
         chmod +x $DIY_P1_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
+        $GITHUB_WORKSPACE/$DIY_P2_SH
 
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
