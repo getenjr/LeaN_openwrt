@@ -53,13 +53,7 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
 
-    - name: Load custom feeds
-      run: |
-        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-        chmod +x $DIY_P1_SH
-        cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P1_SH    
-
+    
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
 
@@ -76,7 +70,7 @@ jobs:
         cat .config
         make download -j100
         make download -j10
-        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c-exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
   
     - name: Compile Packages
